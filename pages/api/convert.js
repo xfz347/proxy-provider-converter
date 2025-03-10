@@ -17,7 +17,7 @@ module.exports = async (req, res) => {
       url,
       headers: {
         "User-Agent":
-          "ClashX Pro/1.72.0.4 (com.west2online.ClashXPro; build:1.72.0.4; macOS 12.0.1) Alamofire/5.4.4",
+          "clash.meta/1.18.7",
       },
     });
     configFile = result.data;
