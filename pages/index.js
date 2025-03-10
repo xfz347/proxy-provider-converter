@@ -81,7 +81,7 @@ proxy-providers:
       # lazy: true
       url: http://www.gstatic.com/generate_204
 proxy-groups:
-  - name: "- ${urlHost || "provider1"}"
+  - name: "${urlHost || "provider1"}"
     type: select
     use:
       - ${urlHost || "provider1"}
@@ -160,7 +160,7 @@ rules:
   - RULE-SET,steamCN,DIRECT
   - RULE-SET,steam,Steam
   - GEOSITE,category-games@cn,DIRECT
-  - GEOSITE,geolocation-!cn,- ${urlHost || "provider1"}
+  - GEOSITE,geolocation-!cn,${urlHost || "provider1"}
   - GEOSITE,cn,DIRECT
   - GEOIP,telegram,Telegram
   - GEOIP,private,DIRECT
