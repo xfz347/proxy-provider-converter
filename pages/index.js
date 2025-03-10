@@ -36,28 +36,22 @@ log-level: info
 ipv6: true
 geodata-mode: true
 tcp-concurrent: true
-# dns: # DNS 一般无需设置，DNS 泄露的影响被夸大了。如果你坚持取消注释，请按实际情况调整内容
-#   enable: false
-#   prefer-h3: true
-#   listen: 0.0.0.0:1053
-#   ipv6: true
-#   default-nameserver:
-#     - 223.5.5.5
-#     - 119.29.29.29
-#   enhanced-mode: fake-ip
-#   fake-ip-range: 198.18.0.1/16 # fake-ip 池设置
-#   fake-ip-filter:
-#     - "*"
-#     - "+.lan"
-#     - "+.local"
-#   nameserver:
-#     - https://1.1.1.1/dns-query
-#     - https://8.8.8.8/dns-query
-#   nameserver-policy:
-#     "geosite:cn,private":
-#       - https://doh.pub/dns-query
-#       - https://dns.alidns.com/dns-query
-
+dns:
+  enable: true
+  listen: 0.0.0.0:1053
+  use-hosts: true
+  ipv6: true
+  enhanced-mode: fake-ip
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter:
+    - "*"
+    - +.lan
+  default-nameserver:
+    - 223.5.5.5
+    - 223.6.6.6
+  nameserver:
+    - https://223.5.5.5/dns-query#h3=true
+    - https://223.6.6.6/dns-query#h3=true
 sniffer:
   enable: true
   force-dns-mapping: true
@@ -166,7 +160,7 @@ rules:
   - RULE-SET,steamCN,DIRECT
   - RULE-SET,steam,Steam
   - GEOSITE,category-games@cn,DIRECT
-  - GEOSITE,geolocation-!cn,PROXY
+  - GEOSITE,geolocation-!cn,- ${urlHost || "provider1"}
   - GEOSITE,cn,DIRECT
   - GEOIP,telegram,Telegram
   - GEOIP,private,DIRECT
