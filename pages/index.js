@@ -31,14 +31,49 @@ export default function Home() {
 
   const clashConfig = `# Clash 配置格式
 
-proxy-groups:
-  - name: UseProvider
-    type: select
-    use:
-      - ${urlHost || "provider1"}
-    proxies:
-      - Proxy
-      - DIRECT
+mode: rule
+log-level: info
+ipv6: true
+geodata-mode: true
+tcp-concurrent: true
+# dns: # DNS 一般无需设置，DNS 泄露的影响被夸大了。如果你坚持取消注释，请按实际情况调整内容
+#   enable: false
+#   prefer-h3: true
+#   listen: 0.0.0.0:1053
+#   ipv6: true
+#   default-nameserver:
+#     - 223.5.5.5
+#     - 119.29.29.29
+#   enhanced-mode: fake-ip
+#   fake-ip-range: 198.18.0.1/16 # fake-ip 池设置
+#   fake-ip-filter:
+#     - "*"
+#     - "+.lan"
+#     - "+.local"
+#   nameserver:
+#     - https://1.1.1.1/dns-query
+#     - https://8.8.8.8/dns-query
+#   nameserver-policy:
+#     "geosite:cn,private":
+#       - https://doh.pub/dns-query
+#       - https://dns.alidns.com/dns-query
+
+sniffer:
+  enable: true
+  force-dns-mapping: true
+  parse-pure-ip: true
+  override-destination: false
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+  # force-domain:
+  skip-domain:
+    - Mijia Cloud
 
 proxy-providers:
   ${urlHost || "provider1"}:
@@ -51,6 +86,92 @@ proxy-providers:
       interval: 600
       # lazy: true
       url: http://www.gstatic.com/generate_204
+proxy-groups:
+  - name: "- ${urlHost || "provider1"}"
+    type: select
+    use:
+      - ${urlHost || "provider1"}
+  - name: "Ads"
+    type: select
+    proxies:
+      - REJECT
+      - ${urlHost || "provider1"}
+      - DIRECT
+  - name: "Telegram"
+    type: select
+    use:
+      - ${urlHost || "provider1"}
+    proxies:
+      - ${urlHost || "provider1"}
+  - name: "YouTube"
+    type: select
+    use:
+      - ${urlHost || "provider1"}
+    proxies:
+      - ${urlHost || "provider1"}
+  - name: "GlobalMedia"
+    type: select
+    use:
+      - ${urlHost || "provider1"}
+    proxies:
+      - ${urlHost || "provider1"}
+  - name: "Steam"
+    type: select
+    use:
+      - ${urlHost || "provider1"}
+    proxies:
+      - ${urlHost || "provider1"}
+      - DIRECT
+  - name: "OpenAI"
+    type: select
+    use:
+      - ${urlHost || "provider1"}
+    proxies:
+      - ${urlHost || "provider1"}
+  - name: "Others"
+    type: select
+    proxies:
+      - ${urlHost || "provider1"}
+      - DIRECT
+
+rule-providers:
+  streaming:
+    type: http
+    behavior: domain
+    url: "https://mirror.ghproxy.com/https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/GlobalMedia/GlobalMedia_Domain.yaml"
+    path: ./ruleset/globalmedia.yaml
+    interval: 86400
+  
+  steam:
+    type: http
+    behavior: classical
+    url: 'https://mirror.ghproxy.com/https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/Steam/Steam.yaml'
+    path: ./ruleset/steam.yaml
+    interval: 86400
+
+  steamCN:
+    type: http
+    behavior: classical
+    url: 'https://mirror.ghproxy.com/https://raw.githubusercontent.com/blackmatrix7/ios_rule_script/master/rule/Clash/SteamCN/SteamCN.yaml'
+    path: ./ruleset/steamCN.yaml
+    interval: 86400
+
+rules:
+  - GEOSITE,category-ads-all,Ads
+  - GEOSITE,private,DIRECT
+  - GEOSITE,apple-cn,DIRECT
+  - GEOSITE,openai,OpenAI
+  - GEOSITE,youtube,YouTube
+  - RULE-SET,streaming,GlobalMedia
+  - RULE-SET,steamCN,DIRECT
+  - RULE-SET,steam,Steam
+  - GEOSITE,category-games@cn,DIRECT
+  - GEOSITE,geolocation-!cn,PROXY
+  - GEOSITE,cn,DIRECT
+  - GEOIP,telegram,Telegram
+  - GEOIP,private,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,Others
 `;
 
   const surgeConfig = `# Surge 配置格式
